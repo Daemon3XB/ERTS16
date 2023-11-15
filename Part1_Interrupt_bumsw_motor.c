@@ -77,20 +77,22 @@ void BumpEdgeTrigger_Init(void){
     NVIC->ISER[1] = 0x00000040;
 }
 
+volatile int mode = 2; //initialise a global variable that is read to determine
+                           //operating mode of the device.
+                           //0 for free-motion, 1 for autonomous
 
 void PORT1_IRQHandler(void){
     switch(P1 -> IV){
 
+    //interrupt case vectors = 2 * (pin_number + 1) in hexadecimal format
         case 0x04: //Switch 1 pressed, autonomous mode
             Port2_Output(GREEN);
-            SysTick_Wait10ms(100);
-            Port2_Output(0);
+            mode = 1; //autonomous
         break;
 
         case 0x0A: //Switch 2 pressed, free-motion mode
             Port2_Output(YELLOW);
-            SysTick_Wait10ms(100);
-            Port2_Output(0);
+            mode = 0; //free-motion
         break;
 
         default: //Break if neither occurs
@@ -117,118 +119,137 @@ void PORT4_IRQHandler(void){
       switch(status){
 
         case 0x02: // Bump switch 1
+            if (mode == 0){
+                // Change the coloured LED into green (backward)
+                Port2_Output(GREEN);
+                // Move backward at 500 duty for 200ms
+                Motor_BackwardSimple(500, 200);
+                // turn off the coloured LED
+                Port2_Output(0);
+                // Stop for 1000ms
+                Motor_StopSimple(10);
+                // Change the coloured LED into yellow (turn left)
+                Port2_Output(YELLOW);
+                // Make a left turn at 500 duty for 100ms
+                Motor_LeftSimple(500, 100);
+                // turn off the coloured LED
+                Port2_Output(0);
+                // Stop for 1000ms
+                Motor_StopSimple(10);
+            } else {
+                Motor_StopFull();
+            }
 
-            // Change the coloured LED into green (backward)
-            Port2_Output(GREEN);
-            // Move backward at 500 duty for 200ms
-            Motor_BackwardSimple(500, 200);
-            // turn off the coloured LED
-            Port2_Output(0);
-            // Stop for 1000ms
-            Motor_StopSimple(100);
-            // Change the coloured LED into yellow (turn left)
-            Port2_Output(YELLOW);
-            // Make a left turn at 500 duty for 100ms
-            Motor_LeftSimple(500, 100);
-            // turn off the coloured LED
-            Port2_Output(0);
-            // Stop for 1000ms
-            Motor_StopSimple(100);
           break;
         case 0x06: // Bump switch 2
-
-            // Change the coloured LED into green (backward)
-            Port2_Output(GREEN);
-            // Move backward at 500 duty for 200ms
-            Motor_BackwardSimple(500, 200);
-            // turn off the coloured LED
-            Port2_Output(0);
-            // Stop for 1000ms
-            Motor_StopSimple(100);
-            // Change the coloured LED into yellow (turn left)
-            Port2_Output(YELLOW);
-            // Make a left turn at 500 duty for 200ms
-            Motor_LeftSimple(500, 200);
-            // turn off the coloured LED
-            Port2_Output(0);
-            // Stop for 1000ms
-            Motor_StopSimple(100);
+            if (mode == 0) {
+                // Change the coloured LED into green (backward)
+                Port2_Output(GREEN);
+                // Move backward at 500 duty for 200ms
+                Motor_BackwardSimple(500, 200);
+                // turn off the coloured LED
+                Port2_Output(0);
+                // Stop for 1000ms
+                Motor_StopSimple(10);
+                // Change the coloured LED into yellow (turn left)
+                Port2_Output(YELLOW);
+                // Make a left turn at 500 duty for 200ms
+                Motor_LeftSimple(500, 200);
+                // turn off the coloured LED
+                Port2_Output(0);
+                // Stop for 1000ms
+                Motor_StopSimple(10);
+            } else {
+                Motor_StopFull();
+            }
           break;
         case 0x08: // Bump switch 3
-
-            // Change the coloured LED into green (backward)
-            Port2_Output(GREEN);
-            // Move backward at 500 duty for 200ms
-            Motor_BackwardSimple(500, 200);
-            // turn off the coloured LED
-            Port2_Output(0);
-            // Stop for 1000ms
-            Motor_StopSimple(100);
-            // Change the coloured LED into yellow (turn left)
-            Port2_Output(YELLOW);
-            // Make a left turn at 500 duty for 300ms
-            Motor_LeftSimple(500, 300);
-            // turn off the coloured LED
-            Port2_Output(0);
-            // Stop for 1000ms
-            Motor_StopSimple(100);
+            if (mode == 0) {
+                // Change the coloured LED into green (backward)
+                Port2_Output(GREEN);
+                // Move backward at 500 duty for 200ms
+                Motor_BackwardSimple(500, 200);
+                // turn off the coloured LED
+                Port2_Output(0);
+                // Stop for 1000ms
+                Motor_StopSimple(10);
+                // Change the coloured LED into yellow (turn left)
+                Port2_Output(YELLOW);
+                // Make a left turn at 500 duty for 300ms
+                Motor_LeftSimple(500, 300);
+                // turn off the coloured LED
+                Port2_Output(0);
+                // Stop for 1000ms
+                Motor_StopSimple(10);
+            } else {
+                Motor_StopFull();
+            }
           break;
         case 0x0C: // Bump switch 4
-
-            // Change the coloured LED into green (backward)
-            Port2_Output(GREEN);
-            // Move backward at 500 duty for 200ms
-            Motor_BackwardSimple(500, 200);
-            // turn off the coloured LED
-            Port2_Output(0);
-            // Stop for 1000ms
-            Motor_StopSimple(100);
-            // Change the coloured LED into blue (turn right)
-            Port2_Output(BLUE);
-            // Make a right turn at 500 duty for 300ms
-            Motor_RightSimple(500, 300);
-            // turn off the coloured LED
-            Port2_Output(0);
-            // Stop for 1000ms
-            Motor_StopSimple(100);
+            if (mode == 0) {
+                // Change the coloured LED into green (backward)
+                Port2_Output(GREEN);
+                // Move backward at 500 duty for 200ms
+                Motor_BackwardSimple(500, 200);
+                // turn off the coloured LED
+                Port2_Output(0);
+                // Stop for 1000ms
+                Motor_StopSimple(10);
+                // Change the coloured LED into blue (turn right)
+                Port2_Output(BLUE);
+                // Make a right turn at 500 duty for 300ms
+                Motor_RightSimple(500, 300);
+                // turn off the coloured LED
+                Port2_Output(0);
+                // Stop for 1000ms
+                Motor_StopSimple(10);
+            } else {
+                Motor_StopFull();
+            }
           break;
         case 0x0E: // Bump switch 5
-
-            // Change the coloured LED into green (backward)
-            Port2_Output(GREEN);
-            // Move backward at 500 duty for 200ms
-            Motor_BackwardSimple(500, 200);
-            // turn off the coloured LED
-            Port2_Output(0);
-            // Stop for 1000ms
-            Motor_StopSimple(100);
-            // Change the coloured LED into blue (turn right)
-            Port2_Output(BLUE);
-            // Make a right turn at 500 duty for 200ms
-            Motor_RightSimple(500, 200);
-            // turn off the coloured LED
-            Port2_Output(0);
-            // Stop for 1000ms
-            Motor_StopSimple(100);
+            if (mode == 0) {
+                // Change the coloured LED into green (backward)
+                Port2_Output(GREEN);
+                // Move backward at 500 duty for 200ms
+                Motor_BackwardSimple(500, 200);
+                // turn off the coloured LED
+                Port2_Output(0);
+                // Stop for 1000ms
+                Motor_StopSimple(10);
+                // Change the coloured LED into blue (turn right)
+                Port2_Output(BLUE);
+                // Make a right turn at 500 duty for 200ms
+                Motor_RightSimple(500, 200);
+                // turn off the coloured LED
+                Port2_Output(0);
+                // Stop for 1000ms
+                Motor_StopSimple(10);
+            } else {
+                Motor_StopFull();
+            }
           break;
         case 0x10: // Bump switch 6
-
-            // Change the coloured LED into green (backward)
-            Port2_Output(GREEN);
-            // Move backward at 500 duty for 200ms
-            Motor_BackwardSimple(500, 200);
-            // turn off the coloured LED
-            Port2_Output(0);
-            // Stop for 1000ms
-            Motor_StopSimple(100);
-            // Change the coloured LED into blue (turn right)
-            Port2_Output(BLUE);
-            // Make a right turn at 500 duty for 100ms
-            Motor_RightSimple(500, 100);
-            // turn off the coloured LED
-            Port2_Output(0);
-            // Stop for 1000ms
-            Motor_StopSimple(100);
+            if (mode == 0) {
+                // Change the coloured LED into green (backward)
+                Port2_Output(GREEN);
+                // Move backward at 500 duty for 200ms
+                Motor_BackwardSimple(500, 200);
+                // turn off the coloured LED
+                Port2_Output(0);
+                // Stop for 1000ms
+                Motor_StopSimple(10);
+                // Change the coloured LED into blue (turn right)
+                Port2_Output(BLUE);
+                // Make a right turn at 500 duty for 100ms
+                Motor_RightSimple(500, 100);
+                // turn off the coloured LED
+                Port2_Output(0);
+                // Stop for 1000ms
+                Motor_StopSimple(10);
+            } else {
+                Motor_StopFull();
+            }
           break;
 
         case 0xED: // none of the switches are pressed
@@ -433,6 +454,7 @@ void Switch_Init(void){
     //This code only sets bit 3 and doesn't clear the rest of the bits (weird
     //but just how it works)
     NVIC -> ISER[1] = 0x00000008; //enable interrupt 35
+
 }
 
 // bit-banded addresses, positive logic

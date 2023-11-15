@@ -72,6 +72,11 @@ void Motor_StopSimple(uint32_t time_ms){
   SysTick_Wait10ms(time_ms); // wait for multiple of 10ms from SysTick
 }
 
+void Motor_StopFull(void){
+    P1->OUT &= ~0xC0;   // off
+    P2->OUT &= ~0xC0;   // off
+}
+
 void Motor_ForwardSimple(uint16_t duty, uint32_t time_ms){
 
     uint32_t i; // this i is used for the 'for loop' in section mtr_pwm_loop
@@ -103,6 +108,39 @@ void Motor_ForwardSimple(uint16_t duty, uint32_t time_ms){
     P1 -> OUT &= ~0xC0;
     P2->OUT &= ~0xC0;
 }
+
+/*void Motor_ForwardInfinite(uint16_t duty){
+
+    uint32_t i; // this i is used for the 'for loop' in section mtr_pwm_loop
+    uint16_t L;
+
+    // The PWM has high (H) and low (L) cycle.
+    L = 1000-duty; // PWM using H and L
+
+    P1 -> DIR |= ~0xC0; //initialise ports in the forward direction
+    P2 -> DIR |= ~0xC0;
+
+
+    P1 -> OUT &= ~0xC0; //initialise motors as off
+
+    for (i = 0; i <= time_ms; i++){
+        P2 -> OUT |= 0x40; //turn on right motor
+        P2 -> OUT |= 0x80; //turn on left motor
+
+        SysTick_Wait1us(1);
+        SysTick_Wait1us(duty); //wait here for on-time (equal to duty)
+
+        P2 -> OUT &= ~0x40; //turn off right motor
+        P2 -> OUT &= ~0x80; //turn off left motor
+
+        SysTick_Wait1us(1);
+        SysTick_Wait1us(L); //wait here for off-time (equal to L = 1 - duty)
+
+     }
+
+     P1 -> OUT &= ~0xC0;
+     P2->OUT &= ~0xC0;
+}*/
 
 void Motor_BackwardSimple(uint16_t duty, uint32_t time_ms){
 
