@@ -123,7 +123,7 @@ void Motor_ForwardSimple(uint16_t duty, uint32_t time_ms){
 
     P1 -> OUT &= ~0xC0; //initialise motors as off
 
-    for (i = 0; i <= time_ms; i++){
+    while(1) {
         P2 -> OUT |= 0x40; //turn on right motor
         P2 -> OUT |= 0x80; //turn on left motor
 

@@ -80,6 +80,7 @@ void BumpEdgeTrigger_Init(void){
 volatile int mode = 2; //initialise a global variable that is read to determine
                            //operating mode of the device.
                            //0 for free-motion, 1 for autonomous
+int go = 1;
 
 void PORT1_IRQHandler(void){
     switch(P1 -> IV){
@@ -88,11 +89,13 @@ void PORT1_IRQHandler(void){
         case 0x04: //Switch 1 pressed, autonomous mode
             Port2_Output(GREEN);
             mode = 1; //autonomous
+            go = 1;
         break;
 
         case 0x0A: //Switch 2 pressed, free-motion mode
             Port2_Output(YELLOW);
             mode = 0; //free-motion
+            go = 1;
         break;
 
         default: //Break if neither occurs
@@ -100,6 +103,7 @@ void PORT1_IRQHandler(void){
         break;
     }
 }
+
 
 
 // Uses P4IV IRQ handler to solve critical section/race
@@ -137,7 +141,8 @@ void PORT4_IRQHandler(void){
                 // Stop for 1000ms
                 Motor_StopSimple(10);
             } else {
-                Motor_StopFull();
+
+                mode = 2;
             }
 
           break;
@@ -160,7 +165,8 @@ void PORT4_IRQHandler(void){
                 // Stop for 1000ms
                 Motor_StopSimple(10);
             } else {
-                Motor_StopFull();
+
+                mode = 2;
             }
           break;
         case 0x08: // Bump switch 3
@@ -182,7 +188,8 @@ void PORT4_IRQHandler(void){
                 // Stop for 1000ms
                 Motor_StopSimple(10);
             } else {
-                Motor_StopFull();
+
+                mode = 2;
             }
           break;
         case 0x0C: // Bump switch 4
@@ -204,7 +211,8 @@ void PORT4_IRQHandler(void){
                 // Stop for 1000ms
                 Motor_StopSimple(10);
             } else {
-                Motor_StopFull();
+
+                mode = 2;
             }
           break;
         case 0x0E: // Bump switch 5
@@ -226,7 +234,8 @@ void PORT4_IRQHandler(void){
                 // Stop for 1000ms
                 Motor_StopSimple(10);
             } else {
-                Motor_StopFull();
+
+                mode = 2;
             }
           break;
         case 0x10: // Bump switch 6
@@ -248,7 +257,8 @@ void PORT4_IRQHandler(void){
                 // Stop for 1000ms
                 Motor_StopSimple(10);
             } else {
-                Motor_StopFull();
+
+                mode = 2;
             }
           break;
 
@@ -462,6 +472,36 @@ void Switch_Init(void){
 #define SW2IN ((*((volatile uint8_t *)(0x42098010)))^1) // input: switch SW2
 #define REDLED (*((volatile uint8_t *)(0x42098040)))    // output: red LED
 
+/*void PredefinedRoute(void){
+    // Change the coloured LED into green (backward)
+
+        Port2_Output(GREEN);
+        // Move backward at 500 duty for 200ms
+        Motor_ForwardSimple(500, 1000);
+        // turn off the coloured LED
+        Port2_Output(0);
+        // Stop for 1000ms
+        Motor_StopSimple(10);
+        // Change the coloured LED into blue (turn right)
+        Port2_Output(BLUE);
+        // Make a right turn at 500 duty for 100ms
+        Motor_RightSimple(500, 300);
+        // turn off the coloured LED
+        Port2_Output(0);
+        // Stop for 1000ms
+        Motor_StopSimple(10);
+
+        Motor_ForwardSimple(500, 500);
+
+        Motor_StopSimple(10);
+
+        Motor_LeftSimple(500,300);
+
+        Motor_StopSimple(10);
+
+
+}*/
+
 int main(void){
 
   Clock_Init48MHz();        // Initialise clock with 48MHz frequency
@@ -476,8 +516,23 @@ int main(void){
   Motor_InitSimple();       // Initialise DC Motor
   Motor_StopSimple(100);    // Stop the motor on initial state
 
+
   EnableInterrupts();       // Clear the I bit
   WaitForInterrupt();
+
+  while(go) {
+      if (mode == 0) {
+          Motor_ForwardSimple(500, 100);
+      } else if (mode == 1) {
+          //Predefined route
+          Motor_LeftSimple(500, 100);
+
+      } else {
+          Motor_StopSimple(10);
+      }
+  }
+
+
 
   // Run forever
 
