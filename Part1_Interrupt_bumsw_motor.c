@@ -77,6 +77,29 @@ void BumpEdgeTrigger_Init(void){
     NVIC->ISER[1] = 0x00000040;
 }
 
+
+void PORT1_IRQHandler(void){
+    switch(P1 -> IV){
+
+        case 0x04: //Switch 1 pressed, autonomous mode
+            Port2_Output(GREEN);
+            SysTick_Wait10ms(100);
+            Port2_Output(0);
+        break;
+
+        case 0x0A: //Switch 2 pressed, free-motion mode
+            Port2_Output(YELLOW);
+            SysTick_Wait10ms(100);
+            Port2_Output(0);
+        break;
+
+        default: //Break if neither occurs
+
+        break;
+    }
+}
+
+
 // Uses P4IV IRQ handler to solve critical section/race
 void PORT4_IRQHandler(void){
 
@@ -237,29 +260,124 @@ uint8_t Bump_Read_Input(void){
 /*void checkbumpswitch(uint8_t status)
 {
     switch(status){
+
       //case 0x02: // Bump switch 1 (for interrupt vector)
         case 0x6D: // Bump 1
-            Motor_ForwardSimple(200, 1000);
+            // Change the coloured LED into green (backward)
+            Port2_Output(GREEN);
+            // Move backward at 500 duty for 200ms
+            Motor_BackwardSimple(500, 200);
+            // turn off the coloured LED
+            Port2_Output(0);
+            // Stop for 1000ms
+            Motor_StopSimple(100);
+            // Change the coloured LED into yellow (turn left)
+            Port2_Output(YELLOW);
+            // Make a left turn at 500 duty for 100ms
+            Motor_LeftSimple(500, 100);
+            // turn off the coloured LED
+            Port2_Output(0);
+            // Stop for 1000ms
+            Motor_StopSimple(100);
         break;
+
       //case 0x06: // Bump switch 2 (for interrupt vector)
         case 0xAD: // Bump 2
-
+        // Change the coloured LED into green (backward)
+            Port2_Output(GREEN);
+            // Move backward at 500 duty for 200ms
+            Motor_BackwardSimple(500, 200);
+            // turn off the coloured LED
+            Port2_Output(0);
+            // Stop for 1000ms
+            Motor_StopSimple(100);
+            // Change the coloured LED into yellow (turn left)
+            Port2_Output(YELLOW);
+            // Make a left turn at 500 duty for 200ms
+            Motor_LeftSimple(500, 200);
+            // turn off the coloured LED
+            Port2_Output(0);
+            // Stop for 1000ms
+            Motor_StopSimple(100);
         break;
+
       //case 0x08: // Bump switch 3 (for interrupt vector)
         case 0xCD: // Bump 3
-
+        // Change the coloured LED into green (backward)
+            Port2_Output(GREEN);
+            // Move backward at 500 duty for 200ms
+            Motor_BackwardSimple(500, 200);
+            // turn off the coloured LED
+            Port2_Output(0);
+            // Stop for 1000ms
+            Motor_StopSimple(100);
+            // Change the coloured LED into yellow (turn left)
+            Port2_Output(YELLOW);
+            // Make a left turn at 500 duty for 300ms
+            Motor_LeftSimple(500, 300);
+            // turn off the coloured LED
+            Port2_Output(0);
+            // Stop for 1000ms
+            Motor_StopSimple(100);
         break;
+
       //case 0x0C: // Bump switch 4 (for interrupt vector)
         case 0xE5: // Bump 4
-
+        // Change the coloured LED into green (backward)
+            Port2_Output(GREEN);
+            // Move backward at 500 duty for 200ms
+            Motor_BackwardSimple(500, 200);
+            // turn off the coloured LED
+            Port2_Output(0);
+            // Stop for 1000ms
+            Motor_StopSimple(100);
+            // Change the coloured LED into blue (turn right)
+            Port2_Output(BLUE);
+            // Make a right turn at 500 duty for 300ms
+            Motor_RightSimple(500, 300);
+            // turn off the coloured LED
+            Port2_Output(0);
+            // Stop for 1000ms
+            Motor_StopSimple(100);
         break;
+
       //case 0x0E: // Bump switch 5 (for interrupt vector)
         case 0xE9: // Bump 5
-
+        // Change the coloured LED into green (backward)
+            Port2_Output(GREEN);
+            // Move backward at 500 duty for 200ms
+            Motor_BackwardSimple(500, 200);
+            // turn off the coloured LED
+            Port2_Output(0);
+            // Stop for 1000ms
+            Motor_StopSimple(100);
+            // Change the coloured LED into blue (turn right)
+            Port2_Output(BLUE);
+            // Make a right turn at 500 duty for 200ms
+            Motor_RightSimple(500, 200);
+            // turn off the coloured LED
+            Port2_Output(0);
+            // Stop for 1000ms
+            Motor_StopSimple(100);
         break;
       //case 0x10: // Bump switch 6 (for interrupt vector)
         case 0xEC: // Bump 6
-
+        // Change the coloured LED into green (backward)
+            Port2_Output(GREEN);
+            // Move backward at 500 duty for 200ms
+            Motor_BackwardSimple(500, 200);
+            // turn off the coloured LED
+            Port2_Output(0);
+            // Stop for 1000ms
+            Motor_StopSimple(100);
+            // Change the coloured LED into blue (turn right)
+            Port2_Output(BLUE);
+            // Make a right turn at 500 duty for 100ms
+            Motor_RightSimple(500, 100);
+            // turn off the coloured LED
+            Port2_Output(0);
+            // Stop for 1000ms
+            Motor_StopSimple(100);
         break;
       case 0xED: // neither switch pressed
 
@@ -297,7 +415,24 @@ void Switch_Init(void){
     P1->SEL1 &= ~0x12;      // configure P1.4 and P1.1 as GPIO
     P1->DIR &= ~0x12;       // make P1.4 and P1.1 in
     P1->REN |= 0x12;        // enable pull resistors on P1.4 and P1.1
-    P1->OUT |= 0x12;        // P1.4 and P1.1 are pull-up
+    P1->OUT |= 0x12;        // P1.4 and P1.1 are pull-up, so the switches go high so long as they aren't pressed
+
+    //IES register set to 1 for falling and 0 for rising edges
+    P1 -> IES |= 0x12; //P1.4 and P1.1 falling edge event (flag raised when switches are pressed)
+
+    //Precautionary clear to ensure interrupts occur only after initialisation and no flags are raised when power is supplied
+    P1 -> IFG &= ~0x12; //clear flags 4 and 1
+
+    //IE is the arming register, 1 is armed and 0 is unarmed
+    P1 -> IE |= 0x12; //arm interrupt for pins 1 and 4
+
+    //Set priority bits to a 010 for 2, 001 for 1 etc. (priority bits are 31 30 29)
+    NVIC -> IP[8] = (NVIC -> IP[8]&0x00FFFFFF) | 0x20000000;
+
+    //35 - 32 because each register is only 32 bits wide, so IRQ 35 is actually bit 3
+    //This code only sets bit 3 and doesn't clear the rest of the bits (weird
+    //but just how it works)
+    NVIC -> ISER[1] = 0x00000008; //enable interrupt 35
 }
 
 // bit-banded addresses, positive logic
@@ -311,11 +446,7 @@ int main(void){
   Switch_Init();            // Initialise switches
   SysTick_Init();           // Initialise SysTick timer
   Port1_Init();             // Initialise P1.1 and P1.4 built-in buttons
-  while(!SW2IN){            // Wait for SW2 switch
-      SysTick_Wait10ms(10); // Wait here for every 100ms
-      REDLED = !REDLED;     // The red LED is blinking waiting for command
-  }
-  REDLED = 0;               // Turn off the red LED
+
   BumpEdgeTrigger_Init();   // Initialise bump switches using edge interrupt
 
   Port2_Init();             // Initialise P2.2-P2.0 built-in LEDs
