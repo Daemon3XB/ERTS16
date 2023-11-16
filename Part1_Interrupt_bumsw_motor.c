@@ -83,17 +83,17 @@ volatile int mode = 2; //initialise a global variable that is read to determine
 int go = 1;
 
 void PORT1_IRQHandler(void){
+    Port2_Output(0);        // turn off the coloured LED
     switch(P1 -> IV){
 
     //interrupt case vectors = 2 * (pin_number + 1) in hexadecimal format
         case 0x04: //Switch 1 pressed, autonomous mode
-            Port2_Output(GREEN);
+            Port2_Output(WHITE);
             mode = 1; //autonomous
             go = 1;
         break;
 
         case 0x0A: //Switch 2 pressed, free-motion mode
-            Port2_Output(YELLOW);
             mode = 0; //free-motion
             go = 1;
         break;
@@ -472,35 +472,40 @@ void Switch_Init(void){
 #define SW2IN ((*((volatile uint8_t *)(0x42098010)))^1) // input: switch SW2
 #define REDLED (*((volatile uint8_t *)(0x42098040)))    // output: red LED
 
-/*void PredefinedRoute(void){
-    // Change the coloured LED into green (backward)
+void PredefinedRoute(void){
 
-        Port2_Output(GREEN);
-        // Move backward at 500 duty for 200ms
-        Motor_ForwardSimple(500, 1000);
-        // turn off the coloured LED
-        Port2_Output(0);
-        // Stop for 1000ms
-        Motor_StopSimple(10);
-        // Change the coloured LED into blue (turn right)
-        Port2_Output(BLUE);
-        // Make a right turn at 500 duty for 100ms
-        Motor_RightSimple(500, 300);
-        // turn off the coloured LED
-        Port2_Output(0);
-        // Stop for 1000ms
-        Motor_StopSimple(10);
+    // Change the coloured LED into white
+    Port2_Output(WHITE);
+    // Move forward at 500 duty for 1000ms
+    Motor_ForwardSimple(500, 1000);
+    // turn off the coloured LED
+    Port2_Output(0);
+    // Stop for 1000ms
+    Motor_StopSimple(10);
+    // Change the coloured LED into blue (turn right)
+    Port2_Output(BLUE);
+    // Make a right turn at 500 duty for 100ms
+    Motor_RightSimple(500, 300);
+    // turn off the coloured LED
+    Port2_Output(0);
+    // Stop for 1000ms
+    Motor_StopSimple(10);
+    //LED white
+    Port2_Output(WHITE);
+    //forward 500 duty 500ms
+    Motor_ForwardSimple(500, 500);
+    //turn off LED
+    Port2_Output(0);
+    Motor_StopSimple(10);
+    //LED yellow
+    Port2_Output(YELLOW);
+    //Turn left
+    Motor_LeftSimple(500,300);
+    Port2_Output(0);
+    Motor_StopSimple(10);
 
-        Motor_ForwardSimple(500, 500);
 
-        Motor_StopSimple(10);
-
-        Motor_LeftSimple(500,300);
-
-        Motor_StopSimple(10);
-
-
-}*/
+}
 
 int main(void){
 
@@ -520,14 +525,16 @@ int main(void){
   EnableInterrupts();       // Clear the I bit
   WaitForInterrupt();
 
+
   while(go) {
       if (mode == 0) {
           Motor_ForwardSimple(500, 100);
       } else if (mode == 1) {
           //Predefined route
-          Motor_LeftSimple(500, 100);
-
+          PredefinedRoute();
+          mode = 2;
       } else {
+          Port2_Output(0);
           Motor_StopSimple(10);
       }
   }

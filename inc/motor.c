@@ -49,6 +49,7 @@ policies, either expressed or implied, of the FreeBSD Project.
 #include "SysTick.h"
 
 // *******Lab 12 *******
+extern volatile int mode;
 
 void Motor_InitSimple(void){
     // initialise P1.6 and P1.7 and make them outputs
@@ -91,20 +92,25 @@ void Motor_ForwardSimple(uint16_t duty, uint32_t time_ms){
 
     P1 -> OUT &= ~0xC0; //initialise motors as off
 
+
     for (i = 0; i <= time_ms; i++){
-        P2 -> OUT |= 0x40; //turn on right motor
-        P2 -> OUT |= 0x80; //turn on left motor
+        if (mode == 1 || mode == 0) {
+            P2 -> OUT |= 0x40; //turn on right motor
+            P2 -> OUT |= 0x80; //turn on left motor
 
-        SysTick_Wait1us(1);
-        SysTick_Wait1us(duty); //wait here for on-time (equal to duty)
+            SysTick_Wait1us(1);
+            SysTick_Wait1us(duty); //wait here for on-time (equal to duty)
 
-        P2 -> OUT &= ~0x40; //turn off right motor
-        P2 -> OUT &= ~0x80; //turn off left motor
+            P2 -> OUT &= ~0x40; //turn off right motor
+            P2 -> OUT &= ~0x80; //turn off left motor
 
-        SysTick_Wait1us(1);
-        SysTick_Wait1us(L); //wait here for off-time (equal to L = 1 - duty)
-
+            SysTick_Wait1us(1);
+            SysTick_Wait1us(L); //wait here for off-time (equal to L = 1 - duty)
+        } else {
+            break;
+        }
     }
+
     P1 -> OUT &= ~0xC0;
     P2->OUT &= ~0xC0;
 }
@@ -155,7 +161,10 @@ void Motor_BackwardSimple(uint16_t duty, uint32_t time_ms){
 
     P1 -> OUT |= 0xC0; //initialise motors as off
 
-        for (i = 0; i <= time_ms; i++){
+
+
+    for (i = 0; i <= time_ms; i++){
+        if (mode == 0 || mode == 1){
             P2 -> OUT |= 0x40; //turn on right motor
             P2 -> OUT |= 0x80; //turn on left motor
 
@@ -167,14 +176,15 @@ void Motor_BackwardSimple(uint16_t duty, uint32_t time_ms){
 
             SysTick_Wait1us(1);
             SysTick_Wait1us(L); //wait here for off-time (equal to L = 1 - duty)
-
+        } else {
+            break;
         }
 
-      P2->OUT &= ~0xC0;
-      P1 -> OUT &= ~0xC0;
 
+    }
 
-
+    P2->OUT &= ~0xC0;
+    P1 -> OUT &= ~0xC0;
 }
 
 void Motor_LeftSimple(uint16_t duty, uint32_t time_ms){
@@ -192,7 +202,9 @@ void Motor_LeftSimple(uint16_t duty, uint32_t time_ms){
 
     P1 -> OUT &= ~0xC0; //initialise motors as off
 
-        for (i = 0; i <= time_ms; i++){
+
+    for (i = 0; i <= time_ms; i++){
+        if (mode == 1 || mode == 0) {
             P2 -> OUT |= 0x40; //turn on right motor
             P2 -> OUT &= ~0x80; //turn on left motor
 
@@ -205,31 +217,17 @@ void Motor_LeftSimple(uint16_t duty, uint32_t time_ms){
             SysTick_Wait1us(1);
             SysTick_Wait1us(L); //wait here for off-time (equal to L = 1 - duty)
 
+        } else {
+            break;
         }
-        P1 -> OUT &= ~0xC0; //reset motors
 
 
-      P2->OUT &= ~0xC0; //turn off PWM
-
+    }
+    P1 -> OUT &= ~0xC0; //reset motors
+    P2->OUT &= ~0xC0; //turn off PWM
 }
 
-/*void PWM_Init34(uint16_t period, uint16_t duty3, unit16_t16_t duty4){
-    if (duty3 >= period) return;
-    if(duty4 >= period) return;
-    P2 -> DIR |= 0xC0;
-    P2 -> SEL0 |= 0xC0;
-    P2 -> SEL1 &= ~0xC0;
 
-    TIMER_A0 -> CCTL[0] = 0x0080;
-    TIMER_A0 -> CCR[0] = period;
-    TIMER_A0 -> EX0 = 0x0000;
-    TIMER_A0 -> CCTL[3] = 0x0040;
-    TIMER_A0 -> CCR[3] = duty3;
-    TIMER_A0 -> CCTL[4] = 0x0040;
-    TIMER_A0 -> CCR [4] = duty4;
-    TIMER_A0 -> CTL = 0x02F0;
-
-}*/
 void Motor_RightSimple(uint16_t duty, uint32_t time_ms){
 
     uint32_t i; // this i is used for the 'for loop' in section mtr_pwm_loop
@@ -244,22 +242,26 @@ void Motor_RightSimple(uint16_t duty, uint32_t time_ms){
 
     P1 -> OUT &= ~0xC0; //initialise motors as off
 
-        for (i = 0; i <= time_ms; i++){
-               P2 -> OUT &= ~0x40; //turn on right motor
-               P2 -> OUT |= 0x80; //turn on left motor
+    for (i = 0; i <= time_ms; i++){
+        if (mode == 1 || mode == 0){
 
-                SysTick_Wait1us(1);
-                SysTick_Wait1us(duty); //wait here for on-time (equal to duty)
+           P2 -> OUT &= ~0x40; //turn on right motor
+           P2 -> OUT |= 0x80; //turn on left motor
 
-                P2 -> OUT &= ~0x40; //turn off right motor
-                P2 -> OUT &= ~0x80; //turn off left motor
+           SysTick_Wait1us(1);
+           SysTick_Wait1us(duty); //wait here for on-time (equal to duty)
 
-                SysTick_Wait1us(1);
-                SysTick_Wait1us(L); //wait here for off-time (equal to L = 1 - duty)
+           P2 -> OUT &= ~0x40; //turn off right motor
+           P2 -> OUT &= ~0x80; //turn off left motor
 
-            }
+           SysTick_Wait1us(1);
+           SysTick_Wait1us(L); //wait here for off-time (equal to L = 1 - duty)
+        } else {
+            break;
+        }
+    }
 
-        P1 -> OUT &= ~0xC0;
-        P2->OUT &= ~0xC0;
+    P1 -> OUT &= ~0xC0;
+    P2->OUT &= ~0xC0;
 
 }
