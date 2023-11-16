@@ -88,14 +88,23 @@ void PORT1_IRQHandler(void){
 
     //interrupt case vectors = 2 * (pin_number + 1) in hexadecimal format
         case 0x04: //Switch 1 pressed, autonomous mode
-            Port2_Output(WHITE);
-            mode = 1; //autonomous
-            go = 1;
+            if (mode == 1){
+                mode = 2;
+            } else {
+                mode = 1; //autonomous
+                go = 1;
+            }
         break;
 
         case 0x0A: //Switch 2 pressed, free-motion mode
-            mode = 0; //free-motion
-            go = 1;
+            if (mode ==0){
+                mode = 2;
+            } else {
+                Port2_Output(0);
+                Port2_Output(WHITE);
+                mode = 0; //free-motion
+                go = 1;
+            }
         break;
 
         default: //Break if neither occurs
@@ -140,6 +149,7 @@ void PORT4_IRQHandler(void){
                 Port2_Output(0);
                 // Stop for 1000ms
                 Motor_StopSimple(10);
+                Port2_Output(WHITE);
             } else {
 
                 mode = 2;
@@ -164,6 +174,7 @@ void PORT4_IRQHandler(void){
                 Port2_Output(0);
                 // Stop for 1000ms
                 Motor_StopSimple(10);
+                Port2_Output(WHITE);
             } else {
 
                 mode = 2;
@@ -187,6 +198,7 @@ void PORT4_IRQHandler(void){
                 Port2_Output(0);
                 // Stop for 1000ms
                 Motor_StopSimple(10);
+                Port2_Output(WHITE);
             } else {
 
                 mode = 2;
@@ -210,6 +222,7 @@ void PORT4_IRQHandler(void){
                 Port2_Output(0);
                 // Stop for 1000ms
                 Motor_StopSimple(10);
+                Port2_Output(WHITE);
             } else {
 
                 mode = 2;
@@ -233,6 +246,7 @@ void PORT4_IRQHandler(void){
                 Port2_Output(0);
                 // Stop for 1000ms
                 Motor_StopSimple(10);
+                Port2_Output(WHITE);
             } else {
 
                 mode = 2;
@@ -256,6 +270,7 @@ void PORT4_IRQHandler(void){
                 Port2_Output(0);
                 // Stop for 1000ms
                 Motor_StopSimple(10);
+                Port2_Output(WHITE);
             } else {
 
                 mode = 2;
@@ -473,7 +488,7 @@ void Switch_Init(void){
 #define REDLED (*((volatile uint8_t *)(0x42098040)))    // output: red LED
 
 void PredefinedRoute(void){
-
+    Port2_Output(0);
     // Change the coloured LED into white
     Port2_Output(WHITE);
     // Move forward at 500 duty for 1000ms
@@ -528,13 +543,13 @@ int main(void){
 
   while(go) {
       if (mode == 0) {
-          Motor_ForwardSimple(500, 100);
+          Port2_Output(WHITE);
+          Motor_ForwardSimple(500, 1);
       } else if (mode == 1) {
           //Predefined route
           PredefinedRoute();
           mode = 2;
       } else {
-          Port2_Output(0);
           Motor_StopSimple(10);
       }
   }
