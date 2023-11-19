@@ -98,7 +98,7 @@ void Motor_LeftSimple(uint16_t duty, uint32_t time_ms){
 
     for (i = 0; i <= time_ms; i++){
         if (mode == 1 || mode == 0) {
-            P1 -> OUT |= 0x80;
+            P1 -> OUT |= 0x80; // 1000 0000
             P2 -> OUT |= 0xC0; //turn on both motors
 
 
@@ -130,7 +130,7 @@ void Motor_RightSimple(uint16_t duty, uint32_t time_ms){
 
     for (i = 0; i <= time_ms; i++){
         if (mode == 1 || mode == 0){
-            P1 -> OUT |= 0x40;
+            P1 -> OUT |= 0x40; // 0100 0000
             P2 -> OUT |= 0xC0; //turn on both motors
 
             SysTick_Wait1us(1);
