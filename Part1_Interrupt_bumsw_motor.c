@@ -297,11 +297,11 @@ uint8_t Bump_Read_Input(void){
 }
 
 // Function: checkbumpswitch(uint8_t status)
-// Description: this is an alternative way that you can use, 
+// Description: this is an alternative way that you can use,
 //              in which it uses polling method that comes from main function.
 //              However it is important to note that:
 //              1) the polling method is only useful for small program
-//              2) the input mask in switch case (for polling method) is DIFFERENT from the 
+//              2) the input mask in switch case (for polling method) is DIFFERENT from the
 //                 Nested Vectored Interrupt Controller (NVIC) which used in interrupt method.
 /*void checkbumpswitch(uint8_t status)
 {
@@ -542,6 +542,9 @@ int main(void){
 
 
   while(go) {
+
+      __no_operation();
+
       if (mode == 0) {
           Port2_Output(WHITE);
           Motor_ForwardSimple(500, 1);
@@ -571,4 +574,3 @@ int main(void){
 
 
   }
-
