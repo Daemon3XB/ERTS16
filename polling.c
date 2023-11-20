@@ -580,6 +580,8 @@ int main(void){
 
 
   while(go) {
+      __no_operation();
+
       if (mode == 0) {
           DisableInterrupts();
 
