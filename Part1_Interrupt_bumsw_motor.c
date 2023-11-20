@@ -548,7 +548,6 @@ int main(void){
       } else if (mode == 1) {
           //Predefined route
           PredefinedRoute();
-          mode = 2;
       } else {
           Motor_StopSimple(10);
       }
