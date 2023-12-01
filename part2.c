@@ -122,7 +122,7 @@ void main_program( void )
     // TODO: initialise the switch
     Switch_Init();
     // TODO: initialise systick timer
-    Systick_Init();
+    SysTick_Init();
 
     //////////////////////////////////////////////////////
     // TIP: to create a task, use xTaskCreate in FreeRTOS
