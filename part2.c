@@ -358,9 +358,6 @@ static void taskBumpSwitch(void *pvParameters){
     for( ;; ){
 
         bumpSwitch_status = Bump_Read_Input();
-                if (bumpSwitch_status == 0x6D || bumpSwitch_status == 0xAD || bumpSwitch_status == 0xCD || bumpSwitch_status == 0xE5 || bumpSwitch_status == 0xE9 || bumpSwitch_status == 0xEC) {
-                    status = bumpSwitch_status;
-                }
          //TODO: use bumpSwitch_status as the variable and
 
                //use Bump_Read_Input to read the input
@@ -422,7 +419,7 @@ static void taskdcMotor(void *pvParameters){
     //       and run this forever in a while loop.
     //       use dcMotor_response and bumpSwitch_status for the parameter
     while(1){
-        dcMotor_response(status);
+        dcMotor_response(bumpSwitch_status);
+
     }
 }
-
